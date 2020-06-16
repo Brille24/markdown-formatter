@@ -1,0 +1,21 @@
+{
+    "name": "brille24/markdown-formatter",
+    "description": "Formatting a stacktrace with markdown for monolog",
+    "type": "library",
+    "require": {
+        "php": ">=7.2",
+        "monolog/monolog": "1.*|2.*"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "mamazu",
+            "email": "maximilian.pesch@brille24.de"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Brille24\\MarkdownFormatter\\": "src/"
+        }
+    }
+}
