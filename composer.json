@@ -4,7 +4,8 @@
     "type": "library",
     "require": {
         "php": ">=7.2",
-        "monolog/monolog": "1.*|2.*"
+        "monolog/monolog": "1.*|2.*",
+        "symfony/string": "^5.1"
     },
     "license": "MIT",
     "authors": [

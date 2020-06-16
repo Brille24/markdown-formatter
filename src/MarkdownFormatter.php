@@ -5,6 +5,7 @@ namespace Brille24\MarkdownFormatter;
 
 use Exception;
 use Monolog\Formatter\FormatterInterface;
+use function Symfony\Component\String\u;
 
 final class MarkdownFormatter implements FormatterInterface
 {
@@ -69,12 +70,12 @@ MARKDOWN, $headline, $stacktrace, $context
     }
 
     /** @param array<string, mixed> $context */
-    private function formatContext(array $context): string
+    public function formatContext(array $context): string
     {
         unset($context['exception']);
 
         if (count($context) > 0) {
-            return json_encode($context, JSON_PRETTY_PRINT);
+            return (string) u((json_encode($context, JSON_PRETTY_PRINT)))->truncate(1000, '...');
         }
 
         return '';
