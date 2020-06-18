@@ -4,6 +4,7 @@
     "type": "library",
     "require": {
         "php": ">=7.2",
+        "ext-json": "*",
         "monolog/monolog": "1.*|2.*",
         "symfony/string": "^5.1"
     },

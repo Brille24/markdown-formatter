@@ -5,6 +5,7 @@ namespace Brille24\MarkdownFormatter;
 
 use Exception;
 use Monolog\Formatter\FormatterInterface;
+use Monolog\Logger;
 use function Symfony\Component\String\u;
 
 final class MarkdownFormatter implements FormatterInterface
@@ -37,6 +38,10 @@ final class MarkdownFormatter implements FormatterInterface
 
         $stacktrace = $this->formatStackTrace($record);
         $context = $this->formatContext($record['context']);
+
+        if ($record['level'] < Logger::WARNING) {
+            return $headline;
+        }
 
         return sprintf(
             <<<MARKDOWN
@@ -75,7 +80,7 @@ MARKDOWN, $headline, $stacktrace, $context
         unset($context['exception']);
 
         if (count($context) > 0) {
-            return (string) u((json_encode($context, JSON_PRETTY_PRINT)))->truncate(1000, '...');
+            return (string)u((json_encode($context, JSON_PRETTY_PRINT)))->truncate(1000, '...');
         }
 
         return '';
