@@ -80,7 +80,7 @@ MARKDOWN, $headline, $stacktrace, $context
         unset($context['exception']);
 
         if (count($context) > 0) {
-            return (string)u((json_encode($context, JSON_PRETTY_PRINT)))->truncate(1000, '...');
+            return (string)u((json_encode($context, JSON_PRETTY_PRINT, 20)))->truncate(1000, '...');
         }
 
         return '';
