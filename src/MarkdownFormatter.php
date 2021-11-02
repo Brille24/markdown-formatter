@@ -19,6 +19,7 @@ final class MarkdownFormatter implements FormatterInterface
         'DEBUG' => ':information_source:',
         'WARN' => '### :warning:',
         'ERROR' => '## :exclamation:',
+        'CRITICAL' => '## :fire:',
     ];
 
     public function __construct(string $projectPath, ?array $logLevelSymbols = null)
