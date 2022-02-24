@@ -7,6 +7,7 @@ use Exception;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Logger;
 use function Symfony\Component\String\u;
+use function array_reduce;
 
 final class MarkdownFormatter implements FormatterInterface
 {
@@ -22,9 +23,9 @@ final class MarkdownFormatter implements FormatterInterface
         'CRITICAL' => '## :fire:',
     ];
 
-    public function __construct(string $projectPath, ?array $logLevelSymbols = null)
+    public function __construct(?string $projectPath = null, ?array $logLevelSymbols = null)
     {
-        $this->projectPath = $projectPath;
+        $this->projectPath = $projectPath ?? realpath(__DIR__.'/../../');
 
         if ($logLevelSymbols !== null) {
             $this->logLevelSymbols = $logLevelSymbols;
@@ -34,8 +35,8 @@ final class MarkdownFormatter implements FormatterInterface
     /** {@inheritDoc} */
     public function format(array $record)
     {
-        $errorSymbol = $this->logLevelSymbols[$record['level_name']] ?? '';
-        $headline = $errorSymbol.' '.$this->formatMessage($record).PHP_EOL;
+        $errorSymbol = $this->logLevelSymbols[$record['level_name']] ?? ':question:';
+        $headline = $errorSymbol.' '.$this->formatMessage($record);
 
         $stacktrace = $this->formatStackTrace($record);
         $context = $this->formatContext($record['context']);
@@ -44,18 +45,15 @@ final class MarkdownFormatter implements FormatterInterface
             return $headline;
         }
 
-        return sprintf(
+        $context = sprintf(
             <<<MARKDOWN
-%s
-
-%s
-
 **Context:**
 ```json
 %s
 ```
-MARKDOWN, $headline, $stacktrace, $context
-        );
+MARKDOWN, $context);
+
+        return implode("\n\n", [$headline, $stacktrace, $context]);
     }
 
     /**
@@ -114,32 +112,56 @@ MARKDOWN, $headline, $stacktrace, $context
 
     private function formatStackTrace(array &$record): string
     {
-        $message = '';
-        if (array_key_exists('exception', $record['context'])) {
-            /** @var Exception $exception */
-            $exception = $record['context']['exception'];
-            $message .= '| Function | Location |'.PHP_EOL;
-            $message .= '|----------|----------|'.PHP_EOL;
-            foreach ($exception->getTrace() as $trace) {
-                $message .= '|';
-                $class = $trace['class'] ?? '\\';
-                $type = $trace['type'] ?? '';
-                if (array_key_exists('function', $trace)) {
-                    $function = $trace['function'].'()';
-                } else {
-                    $function = '<no-function>';
-                }
+        if (!array_key_exists('exception', $record['context'])) {
+            return '';
+        }
 
-                $message .= $class.$type.$function.' | ';
-                if (array_key_exists('file', $trace)) {
-                    $line = $trace['line'] ?? '';
-                    $message .= $this->replacePath($trace['file']).':';
-                    $message .= $line.' |'.PHP_EOL;
-                }
+        $messages = ['function' => ['Function'], 'location' => ['Location']];
+        /** @var Exception $exception */
+        $exception = $record['context']['exception'];
+        foreach ($exception->getTrace() as $trace) {
+            $class = $trace['class'] ?? '\\';
+            $type = $trace['type'] ?? '';
+            if (array_key_exists('function', $trace)) {
+                $function = $trace['function'].'()';
+            } else {
+                $function = '<no-function>';
             }
-            $message .= PHP_EOL;
+            $messages['function'][] = $class.$type.$function;
+
+            if (array_key_exists('file', $trace)) {
+                $line = $trace['line'] ?? '';
+                $messages['location'][] = $this->replacePath($trace['file']).':'. $line;
+            }
+        }
+
+        $message = '';
+        $leftColumnWidth = $this->getColumnWidth($messages['function']);
+        $rightColumnWidth = $this->getColumnWidth($messages['location']);
+        foreach (range(0, count($messages['function']) - 1) as $i) {
+            if ($i === 1) {
+                $message .= '|'.str_repeat('-', $leftColumnWidth + 2).'|'.str_repeat('-', $rightColumnWidth + 2).'|'.PHP_EOL;
+            }
+            $leftSpacer = $leftColumnWidth - strlen($messages['function'][$i]) + 1;
+            $rightSpacer = $rightColumnWidth - strlen($messages['location'][$i]) + 1;
+            $message.='|';
+            $message .= ' '.$messages['function'][$i]. str_repeat(' ', $leftSpacer);
+            $message.='|';
+            $message .= ' '.$messages['location'][$i].str_repeat(' ', $rightSpacer);
+            $message.='|'.PHP_EOL;
         }
 
         return $message;
     }
+
+    private function getColumnWidth(array $messages): int
+    {
+        return array_reduce(
+            $messages,
+            function (int $maxLength, string $current) {
+                return max($maxLength, strlen($current));
+            },
+            0);
+    }
 }
+
