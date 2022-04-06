@@ -142,8 +142,8 @@ MARKDOWN, $context);
             if ($i === 1) {
                 $message .= '|'.str_repeat('-', $leftColumnWidth + 2).'|'.str_repeat('-', $rightColumnWidth + 2).'|'.PHP_EOL;
             }
-            $leftSpacer = $leftColumnWidth - strlen($messages['function'][$i]) + 1;
-            $rightSpacer = $rightColumnWidth - strlen($messages['location'][$i]) + 1;
+            $leftSpacer = $leftColumnWidth - strlen($messages['function'][$i] ?? '') + 1;
+            $rightSpacer = $rightColumnWidth - strlen($messages['location'][$i] ?? '') + 1;
             $message.='|';
             $message .= ' '.$messages['function'][$i]. str_repeat(' ', $leftSpacer);
             $message.='|';
