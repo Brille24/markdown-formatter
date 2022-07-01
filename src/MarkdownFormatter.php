@@ -112,13 +112,13 @@ MARKDOWN, $context);
 
     private function formatStackTrace(array &$record): string
     {
-        if (!array_key_exists('exception', $record['context'])) {
+        /** @var Exception|null $exception */
+        $exception = $record['context']['exception'] ?? null;
+        if ($exception === null) {
             return '';
         }
 
         $messages = ['function' => ['Function'], 'location' => ['Location']];
-        /** @var Exception $exception */
-        $exception = $record['context']['exception'];
         foreach ($exception->getTrace() as $trace) {
             $class = $trace['class'] ?? '\\';
             $type = $trace['type'] ?? '';
