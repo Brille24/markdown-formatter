@@ -103,6 +103,29 @@ MARKDOWN,
         );
     }
 
+    public function testExceptionIsEmpty(): void {
+        $exception = new Exception();
+
+        $output = $this->formatter->format([
+            'level_name' => 'ERROR',
+            'level' => Logger::ERROR,
+            'message' => 'Exception occurred here:',
+            'context' => [
+                'exception' => null,
+            ],
+        ]);
+
+        $this->assertSame(<<<MARKDOWN
+## :exclamation: Exception occurred here:
+
+
+
+**Context:**
+```json
+
+```
+MARKDOWN, $output);
+    }
     public function testStackstrace(): void {
         $exception = new Exception();
 
