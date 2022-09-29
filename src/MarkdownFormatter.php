@@ -78,11 +78,17 @@ MARKDOWN, $context);
     {
         unset($context['exception']);
 
-        if (count($context) > 0) {
-            return (string)u((json_encode($context, JSON_PRETTY_PRINT, 20)))->truncate(1000, '...');
+        if (count($context) === 0) {
+            return '';
         }
 
-        return '';
+        // Try formatting with json and if this doesn't work use var_export
+        $formattedContext = json_encode($context, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE, 20);
+        if ($formattedContext === false) {
+            $formattedContext = var_export($context, true) ?? '';
+        }
+
+        return (string)u($formattedContext)->truncate(1000, '...');
     }
 
     private function replacePath(string $absolutePath): string
