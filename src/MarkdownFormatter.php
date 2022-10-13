@@ -45,13 +45,14 @@ final class MarkdownFormatter implements FormatterInterface
             return $headline;
         }
 
-        $context = sprintf(
-            <<<MARKDOWN
+        $format = <<<MARKDOWN
 **Context:**
 ```json
 %s
 ```
-MARKDOWN, $context);
+MARKDOWN;
+
+        $context = sprintf($format, $context);
 
         return implode("\n\n", [$headline, $stacktrace, $context]);
     }
