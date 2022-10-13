@@ -19,7 +19,9 @@ A formatter that prints the stack trace in markdown like so:
 
 **Context:**
 ```json
-
+{
+    "failed_test": "some tests failed."
+}
 ```
 
 ## Usage
@@ -29,7 +31,7 @@ Define the class `Brille24\MarkdownFormatter\MarkdownFormatter` as a service and
 ```yaml
 monolog:
     type: 'service'
-    id: "Brille24\MarkdownFormatter\MarkdownFormatter"
+    id: "Brille24\\MarkdownFormatter\\MarkdownFormatter"
 ```
 
 If you want to customize the base path that the location is relative to you can pass the first argument to the root of the project eg.
